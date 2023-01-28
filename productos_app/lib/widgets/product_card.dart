@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../models/models.dart';
+
 class ProductCard extends StatelessWidget {
-  const ProductCard({super.key});
+  const ProductCard({super.key, required this.product});
+
+  final Product product;
 
   @override
   Widget build(BuildContext context) {
@@ -14,19 +18,23 @@ class ProductCard extends StatelessWidget {
           height: 400,
           child: Stack(
             alignment: Alignment.bottomLeft,
-            children: const [
-              _BackgroundImage(),
-              _ProductDetail(),
+            children: [
+              _BackgroundImage(product.picture),
+              _ProductDetail(
+                title: product.name,
+                subtitle: product.id!,
+              ),
               Positioned(
                 top: 0,
                 right: 0,
-                child: _PriceTag(),
+                child: _PriceTag(product.price),
               ),
-              Positioned(
-                top: 0,
-                left: 0,
-                child: _NotAvailable(),
-              ),
+              if (!product.available)
+                const Positioned(
+                  top: 0,
+                  left: 0,
+                  child: _NotAvailable(),
+                ),
             ],
           ),
         ));
@@ -73,9 +81,11 @@ class _NotAvailable extends StatelessWidget {
 }
 
 class _PriceTag extends StatelessWidget {
-  const _PriceTag({
-    Key? key,
-  }) : super(key: key);
+  final double price;
+
+  const _PriceTag(
+    this.price,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -87,12 +97,12 @@ class _PriceTag extends StatelessWidget {
           color: Colors.indigo,
           borderRadius: BorderRadius.only(
               topRight: Radius.circular(25), bottomLeft: Radius.circular(25))),
-      child: const FittedBox(
+      child: FittedBox(
         fit: BoxFit.contain,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Text(
-            '\$100.99',
+            '\$$price',
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
         ),
@@ -102,9 +112,13 @@ class _PriceTag extends StatelessWidget {
 }
 
 class _ProductDetail extends StatelessWidget {
+  final String title;
+  final String subtitle;
+
   const _ProductDetail({
-    Key? key,
-  }) : super(key: key);
+    required this.title,
+    required this.subtitle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -115,29 +129,27 @@ class _ProductDetail extends StatelessWidget {
         width: double.infinity,
         height: 70,
         decoration: _buildBoxDecoration(),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                'Disco duro G',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              Text(
-                'Id del disco duro',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.white,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              )
-            ]),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              fontSize: 15,
+              color: Colors.white,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          )
+        ]),
       ),
     );
   }
@@ -149,21 +161,28 @@ class _ProductDetail extends StatelessWidget {
 }
 
 class _BackgroundImage extends StatelessWidget {
-  const _BackgroundImage({
-    Key? key,
-  }) : super(key: key);
+  final String? url;
+
+  const _BackgroundImage(
+    this.url,
+  );
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(25),
-      child: const SizedBox(
+      child: SizedBox(
           width: double.infinity,
           height: 400,
-          child: FadeInImage(
-              placeholder: AssetImage('assets/jar-loading.gif'),
-              image: NetworkImage('https://picsum.photos/400/300'),
-              fit: BoxFit.cover)),
+          child: url == null
+              ? const Image(
+                  image: AssetImage('assets/no-image.png'),
+                  fit: BoxFit.cover,
+                )
+              : FadeInImage(
+                  placeholder: const AssetImage('assets/jar-loading.gif'),
+                  image: NetworkImage(url!),
+                  fit: BoxFit.cover)),
     );
   }
 }
