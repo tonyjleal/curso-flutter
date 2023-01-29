@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:productos_app/services/products_service.dart';
+import 'package:productos_app/services/services.dart';
 import 'package:productos_app/ui/input_decorations.dart';
 import 'package:productos_app/widgets/widgets.dart';
 import 'package:provider/provider.dart';
@@ -9,8 +9,6 @@ import 'package:provider/provider.dart';
 import '../providers/providers.dart';
 
 class ProductScreen extends StatelessWidget {
-  const ProductScreen({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     final productService = Provider.of<ProductsService>(context);
@@ -106,6 +104,7 @@ class _ProductForm extends StatelessWidget {
         width: double.infinity,
         decoration: _buildBoxDecoration(),
         child: Form(
+          key: productForm.formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             children: [
@@ -114,9 +113,9 @@ class _ProductForm extends StatelessWidget {
                 initialValue: product.name,
                 onChanged: (value) => product.name = value,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return ' El nombre es obligatorio';
-                  }
+                  return (value == null || value.isEmpty)
+                      ? ' El nombre es obligatorio'
+                      : null;
                 },
                 decoration: InputDecorations.authInputDecoration(
                     hintText: 'Nombre del producto', labelText: 'Nombre:'),
